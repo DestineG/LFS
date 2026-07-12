@@ -1,0 +1,31 @@
+[project]
+name = "LFS"
+version = "0.1.0"
+description = "LLM From Scratch"
+requires-python = ">=3.10"
+dependencies = [
+    # Core deep learning
+    "torch>=2.1.0",
+    "transformers>=4.36.0",
+    "tokenizers>=0.15.0",
+    # Model weights and serialization
+    "safetensors>=0.4.0",
+    # Data processing
+    "datasets>=2.16.0",
+    "numpy>=1.24.0",
+    # Progress and logging
+    "tqdm>=4.66.0",
+    "wandb>=0.16.0",
+    "accelerate>=1.14.0",
+    "tiktoken>=0.13.0",
+    "rustbpe>=0.1.0",
+    "huggingface-hub>=1.22.0",
+]
+
+[[tool.uv.index]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch" }
