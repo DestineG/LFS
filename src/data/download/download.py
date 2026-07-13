@@ -1,10 +1,18 @@
 import time
 from pathlib import Path
 import requests
+import argparse
 from multiprocessing import Pool
 
 from src.utils.common import log_info, log_warning, log_error
-from .generate_download_config import get_all_download_configs, load_download_manifest
+from .generate_download_config import (
+    get_all_download_configs,
+    generate_pretrain_download_configs,
+    generate_posttrain_download_configs,
+    get_python_download_config,
+    generate_download_config,
+    load_download_manifest
+)
 
 
 def download_single_file(url: str, local_path: str) -> bool:
@@ -76,7 +84,10 @@ def download_single_dataset(image_url: str, repo_id: str, revision: str, num_wor
     if num_workers <= 0:
         raise ValueError(f"num_workers must be greater than 0, got {num_workers}")
 
-    base_url = f"{image_url}/datasets/{repo_id}/resolve/{revision}"
+    if repo_id == "bigcode/starcoderdata":
+        base_url = f"https://www.modelscope.cn/datasets/{repo_id}/resolve/master"
+    else:
+        base_url = f"{image_url}/datasets/{repo_id}/resolve/{revision}"
 
     config = load_download_manifest(repo_id, revision)
     if config is None:
@@ -172,12 +183,32 @@ def download_datasets(image_url: str, configs: list[dict], num_workers: int = 1)
 
     return results
 
+
+# uv run python -m src.data.download.download --image_url https://hf-mirror.com --num_workers 8 --dataset_scope single --repo_id bigcode/starcoderdata --revision main
 if __name__ == "__main__":
     # image_url = "https://huggingface.co"
-    image_url = "https://hf-mirror.com"
-    configs = get_all_download_configs(persistent=True, overwrite=False)
+    # image_url = "https://hf-mirror.com"
+    parser = argparse.ArgumentParser(description="Download datasets based on generated download configs.")
+    parser.add_argument("--image_url", type=str, default="https://hf-mirror.com", help="Base URL for downloading datasets.")
+    parser.add_argument("--num_workers", type=int, default=8, help="Number of parallel workers for downloading.")
+    parser.add_argument("--dataset_scope", type=str, choices=["all", "pretrain", "posttrain", "single"], default="all", help="Scope of datasets to generate configs for. 'all' for all datasets, 'pretrain' for pretraining datasets, 'posttrain' for posttraining datasets, 'single' for a single dataset.")
+    parser.add_argument("--repo_id", type=str, help="The repository ID of the dataset.")
+    parser.add_argument("--revision", type=str, default="main", help="The revision of the dataset.")
+    parser.add_argument("--overwrite", action="store_true", default=False, help="Whether to overwrite existing configs on disk.")
+    args = parser.parse_args()
 
-    results = download_datasets(image_url, configs, num_workers=8)
+    if args.dataset_scope == "all":
+        configs = get_all_download_configs(persistent=False, overwrite=args.overwrite)
+    elif args.dataset_scope == "pretrain":
+        configs = generate_pretrain_download_configs(persistent=False, overwrite=args.overwrite)
+    elif args.dataset_scope == "posttrain":
+        configs = generate_posttrain_download_configs(persistent=False, overwrite=args.overwrite)
+    elif args.dataset_scope == "single":
+        if not args.repo_id or not args.revision:
+            raise ValueError("For 'single' dataset_scope, both --repo_id and --revision must be provided.")
+        single_dataset_config = get_python_download_config(args.repo_id, args.revision)
+        configs = [generate_download_config(single_dataset_config, persistent=False, overwrite=args.overwrite)]
+    results = download_datasets(args.image_url, configs, num_workers=args.num_workers)
 
     for repo_id, result in results.items():
         log_info(

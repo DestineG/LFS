@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+import argparse
 
 from .config import POSTTRAIN_DATASETS, PRETRAIN_DATASETS
 from src.utils.common import get_base_dir, log_info, log_warning
@@ -38,6 +39,36 @@ def load_download_manifest(repo_id: str, revision: str):
     with manifest_path.open("r", encoding="utf-8") as f:
         download_config = json.load(f)
     return download_config
+
+def get_python_download_config(repo_id: str, revision: str):
+    pre_cfg = [
+        cfg
+        for cfg in PRETRAIN_DATASETS
+        if cfg.get("repo_id") == repo_id and cfg.get("revision") == revision
+    ]
+
+    post_cfg = [
+        cfg
+        for cfg in POSTTRAIN_DATASETS
+        if cfg.get("repo_id") == repo_id and cfg.get("revision") == revision
+    ]
+
+    if pre_cfg and post_cfg:
+        raise ValueError(f"Found both pretrain and posttrain configs for {repo_id} at revision {revision}.")
+
+    if len(pre_cfg) > 1:
+        raise ValueError(f"Found multiple pretrain configs for {repo_id} at revision {revision}: {len(pre_cfg)} matches.")
+
+    if len(post_cfg) > 1:
+        raise ValueError(f"Found multiple posttrain configs for {repo_id} at revision {revision}: {len(post_cfg)} matches.")
+
+    if pre_cfg:
+        return pre_cfg[0]
+
+    if post_cfg:
+        return post_cfg[0]
+
+    raise ValueError(f"No config found for {repo_id} at revision {revision}.")
 
 def generate_download_config(dataset_config, persistent: bool = True, overwrite: bool = True):
     repo_id = dataset_config["repo_id"]
@@ -120,6 +151,28 @@ def get_all_download_configs(persistent: bool = True, overwrite: bool = True):
     posttrain_configs = generate_posttrain_download_configs(persistent, overwrite)
     return pretrain_configs + posttrain_configs
 
+
+# uv run python -m src.data.download.generate_download_config --dataset_scope single --repo_id bigcode/starcoderdata --revision main --overwrite
 if __name__ == "__main__":
-    cfgs = get_all_download_configs(persistent=True, overwrite=True)
-    log_info(f"Generated {len(cfgs)} download configs.")
+    parser = argparse.ArgumentParser(description="Generate download configs for datasets.")
+    parser.add_argument("--dataset_scope", type=str, choices=["all", "pretrain", "posttrain", "single"], default="all", help="Scope of datasets to generate configs for. 'all' for all datasets, 'pretrain' for pretraining datasets, 'posttrain' for posttraining datasets, 'single' for a single dataset.")
+    parser.add_argument("--repo_id", type=str, help="The repository ID of the dataset.")
+    parser.add_argument("--revision", type=str, default="main", help="The revision of the dataset.")
+    parser.add_argument("--overwrite", action="store_true", help="Whether to overwrite existing configs on disk.")
+    args = parser.parse_args()
+
+    if args.dataset_scope == "all":
+        cfgs = get_all_download_configs(persistent=True, overwrite=args.overwrite)
+        log_info(f"Generated {len(cfgs)} download configs for all datasets.")
+    elif args.dataset_scope == "pretrain":
+        cfgs = generate_pretrain_download_configs(persistent=True, overwrite=args.overwrite)
+        log_info(f"Generated {len(cfgs)} download configs for pretraining datasets.")
+    elif args.dataset_scope == "posttrain":
+        cfgs = generate_posttrain_download_configs(persistent=True, overwrite=args.overwrite)
+        log_info(f"Generated {len(cfgs)} download configs for posttraining datasets.")
+    elif args.dataset_scope == "single":
+        if not args.repo_id or not args.revision:
+            raise ValueError("For 'single' dataset_scope, both --repo_id and --revision must be provided.")
+        dataset_config = get_python_download_config(args.repo_id, args.revision)
+        cfg = generate_download_config(dataset_config, persistent=True, overwrite=args.overwrite)
+        log_info(f"Generated download config for dataset {args.repo_id} at revision {args.revision}.")

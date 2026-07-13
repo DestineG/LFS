@@ -41,7 +41,7 @@ PRETRAIN_DATASETS = [
             ("python", -1),
         ],
         "file_type": "parquet",
-        "local_dir": f"{BASE_DIR}/data/raw/data/bigcode--starcoderdata",
+        "local_dir": f"{BASE_DIR}/data/raw/bigcode--starcoderdata",
         "corpus": "code",
     },
     {
