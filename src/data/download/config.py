@@ -1,6 +1,6 @@
-from src.utils.common import get_base_dir
+from src.utils.common import get_raw_data_dir
 
-BASE_DIR = get_base_dir()
+RAW_DATA_DIR = get_raw_data_dir()
 
 # 预训练数据集配置
 PRETRAIN_DATASETS = [
@@ -11,8 +11,12 @@ PRETRAIN_DATASETS = [
             ("", 2500),
         ],
         "file_type": "parquet",
-        "local_dir": f"{BASE_DIR}/data/raw/karpathy--climbmix-400b-shuffle",
+        "local_dir": f"{RAW_DATA_DIR}/karpathy--climbmix-400b-shuffle",
         "corpus": "en",
+        "text_column": "text",
+        "rows_per_group": 8192,
+        "max_row_groups_per_file": 32,
+        "compression": "zstd",
     },
     {
         "repo_id": "opencsg/chinese-fineweb-edu",
@@ -25,8 +29,12 @@ PRETRAIN_DATASETS = [
             ("tele", -1),
         ],
         "file_type": "parquet",
-        "local_dir": f"{BASE_DIR}/data/raw/opencsg--chinese-fineweb-edu",
+        "local_dir": f"{RAW_DATA_DIR}/opencsg--chinese-fineweb-edu",
         "corpus": "zh",
+        "text_column": "text",
+        "rows_per_group": 4096,
+        "max_row_groups_per_file": 32,
+        "compression": "zstd",
     },
     {
         "repo_id": "bigcode/starcoderdata",
@@ -41,8 +49,12 @@ PRETRAIN_DATASETS = [
             ("python", -1),
         ],
         "file_type": "parquet",
-        "local_dir": f"{BASE_DIR}/data/raw/bigcode--starcoderdata",
+        "local_dir": f"{RAW_DATA_DIR}/bigcode--starcoderdata",
         "corpus": "code",
+        "text_column": "content",
+        "rows_per_group": 2048,
+        "max_row_groups_per_file": 32,
+        "compression": "zstd",
     },
     {
         "repo_id": "open-web-math/open-web-math",
@@ -51,8 +63,12 @@ PRETRAIN_DATASETS = [
             ("data", -1),
         ],
         "file_type": "parquet",
-        "local_dir": f"{BASE_DIR}/data/raw/open-web-math--open-web-math",
+        "local_dir": f"{RAW_DATA_DIR}/open-web-math--open-web-math",
         "corpus": "math",
+        "text_column": "text",
+        "rows_per_group": 4096,
+        "max_row_groups_per_file": 32,
+        "compression": "zstd",
     }
 ]
 
@@ -65,7 +81,7 @@ POSTTRAIN_DATASETS = [
             ("sft/cleaned", -1),
         ],
         "file_type": "jsonl",
-        "local_dir": f"{BASE_DIR}/data/raw/opencsg--Fineweb-Edu-Chinese-V2.2",
+        "local_dir": f"{RAW_DATA_DIR}/opencsg--Fineweb-Edu-Chinese-V2.2",
     },
     {
         "repo_id": "HuggingFaceTB/smol-smoltalk",
@@ -74,7 +90,7 @@ POSTTRAIN_DATASETS = [
             ("data", -1),
         ],
         "file_type": "parquet",
-        "local_dir": f"{BASE_DIR}/data/raw/HuggingFaceTB--smol-smoltalk",
+        "local_dir": f"{RAW_DATA_DIR}/HuggingFaceTB--smol-smoltalk",
     },
     {
         "repo_id": "cais/mmlu",
@@ -82,7 +98,7 @@ POSTTRAIN_DATASETS = [
         "selected_sub_dir": [
         ],
         "file_type": "parquet",
-        "local_dir": f"{BASE_DIR}/data/raw/cais--mmlu",
+        "local_dir": f"{RAW_DATA_DIR}/cais--mmlu",
     },
     {
         "repo_id": "openai/openai_humaneval",
@@ -91,7 +107,7 @@ POSTTRAIN_DATASETS = [
             ("openai_humaneval", -1),
         ],
         "file_type": "parquet",
-        "local_dir": f"{BASE_DIR}/data/raw/openai--openai_humaneval",
+        "local_dir": f"{RAW_DATA_DIR}/openai--openai_humaneval",
     },
     {
         "repo_id": "openai/gsm8k",
@@ -101,7 +117,7 @@ POSTTRAIN_DATASETS = [
             ("socratic", -1)
         ],
         "file_type": "parquet",
-        "local_dir": f"{BASE_DIR}/data/raw/openai--gsm8k",
+        "local_dir": f"{RAW_DATA_DIR}/openai--gsm8k",
     },
     {
         "repo_id": "allenai/ai2_arc",
@@ -111,6 +127,6 @@ POSTTRAIN_DATASETS = [
             ("ARC-Challenge", -1),
         ],
         "file_type": "parquet",
-        "local_dir": f"{BASE_DIR}/data/raw/allenai--ai2_arc",
+        "local_dir": f"{RAW_DATA_DIR}/allenai--ai2_arc",
     }
 ]

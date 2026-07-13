@@ -12,6 +12,16 @@ def get_base_dir():
     os.makedirs(base_dir, exist_ok=True)
     return base_dir
 
+def get_raw_data_dir():
+    raw_data_dir = os.path.join(get_base_dir(), "data", "raw")
+    os.makedirs(raw_data_dir, exist_ok=True)
+    return raw_data_dir
+
+def get_preprocess_pretrain_data_dir():
+    preprocess_pretrain_data_dir = os.path.join(get_base_dir(), "data", "preprocessed", "pretrain")
+    os.makedirs(preprocess_pretrain_data_dir, exist_ok=True)
+    return preprocess_pretrain_data_dir
+
 
 def _build_logger():
     logger = logging.getLogger("LFS")
