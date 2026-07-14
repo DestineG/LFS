@@ -1,6 +1,29 @@
+from dataclasses import dataclass
+
 from src.utils.common import get_raw_data_dir
 
 RAW_DATA_DIR = get_raw_data_dir()
+
+@dataclass
+class PretrainDatasetConfig:
+    repo_id: str
+    revision: str
+    selected_sub_dir: list
+    file_type: str
+    local_dir: str
+    corpus: str
+    text_column: str
+    rows_per_group: int
+    max_row_groups_per_file: int
+    compression: str
+
+@dataclass
+class PosttrainDatasetConfig:
+    repo_id: str
+    revision: str
+    selected_sub_dir: list
+    file_type: str
+    local_dir: str
 
 # 预训练数据集配置
 PRETRAIN_DATASETS = [

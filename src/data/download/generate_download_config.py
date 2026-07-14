@@ -152,6 +152,7 @@ def get_all_download_configs(persistent: bool = True, overwrite: bool = True):
     return pretrain_configs + posttrain_configs
 
 
+# uv run python -m src.data.download.generate_download_config --dataset_scope all --overwrite
 # uv run python -m src.data.download.generate_download_config --dataset_scope single --repo_id bigcode/starcoderdata --revision main --overwrite
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate download configs for datasets.")

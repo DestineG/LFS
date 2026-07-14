@@ -84,6 +84,8 @@ def download_single_dataset(image_url: str, repo_id: str, revision: str, num_wor
     if num_workers <= 0:
         raise ValueError(f"num_workers must be greater than 0, got {num_workers}")
 
+    # bigcode/starcoderdata requires access approval on Hugging Face,
+    # so use the ModelScope mirror to download it directly.
     if repo_id == "bigcode/starcoderdata":
         base_url = f"https://www.modelscope.cn/datasets/{repo_id}/resolve/master"
     else:
@@ -183,7 +185,7 @@ def download_datasets(image_url: str, configs: list[dict], num_workers: int = 1)
 
     return results
 
-
+# uv run python -m src.data.download.download --image_url https://hf-mirror.com --num_workers 8 --dataset_scope all
 # uv run python -m src.data.download.download --image_url https://hf-mirror.com --num_workers 8 --dataset_scope single --repo_id bigcode/starcoderdata --revision main
 if __name__ == "__main__":
     # image_url = "https://huggingface.co"
